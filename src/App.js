@@ -1,23 +1,62 @@
-import logo from './logo.svg';
+
 import './App.css';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import UserList from './components/UserList';
+import UserForm from './components/UserForm';
 
 function App() {
+
+  //declaramos el estado donde almacenaremos los usuarios
+  const [users,setUsers] = useState([])
+  const [userSelected,setUserSelected] = useState([])
+
+  useEffect(()=>{
+    axios.get("https://users-crud1.herokuapp.com/users/")
+      .then( res => setUsers(res.data))
+
+  }, [])
+
+  const getUsers = () => {
+    axios
+      .get("https://users-crud1.herokuapp.com/users/")
+      .then((res) => setUsers(res.data));
+  };
+
+   //con esta funcion seleccionamos el usuario , mediante los parametros pasamos la variable
+  const selectUser = (user) => {
+    setUserSelected(user);
+  };
+
+  // con esta funcion quitamos el usuario seleccionado
+
+
+  const removeUser = id => {
+    axios
+    .delete(`https://users-crud1.herokuapp.com/users/${id}/`)
+        .then(() => getUsers());
+  }
+  
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        {/* enviamos mediante props ls usuarios hacia el componente
+        donde los listaremos  */}
+        
+        <main className='App-main'>
+          <UserForm
+            getUsers={getUsers}
+            userSelected={userSelected}
+            deselectUser={ () => setUserSelected (null) }
+          />
+          <UserList 
+            users= {users} 
+            selectUser={selectUser}
+            removeUser={removeUser}
+          />
+        </main>
+          
+        
     </div>
   );
 }
